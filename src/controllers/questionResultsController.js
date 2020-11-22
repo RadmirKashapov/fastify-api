@@ -1,6 +1,14 @@
 const boom = require('boom')
 
 const QuestionResults = require('../models/QuestionResults')
+const TestResultsController = require('../controllers/testResultsController')
+const Test = require('../models/Test')
+const FuzzyController = require('../business/fuzzyTestController')
+const Question = require('../models/Question')
+
+const mongoose = require('mongoose')
+
+
 
 // Get all questionResults
 exports.getAllQuestionResults = async (req, reply) => {
@@ -26,8 +34,20 @@ exports.getQuestionResultsById = async (req, reply) => {
 // Add a new questionResult
 exports.addQuestionResults = async (req, reply) => {
     try {
-        const questionResult = new QuestionResults(req.body)
-        return questionResult.save()
+        const { user_id, theme_id, test_id, question, user_answers } = req.body
+
+        let existQuestion = await QuestionResults.findOne({theme_id, user_id, test_id, _id: question})
+
+        let resultPerQuestion
+
+        if (existQuestion == null) {
+            const questionResult = new QuestionResults(req.body)
+
+            return await questionResult.save()
+        } else {
+            return await QuestionResults.findByIdAndUpdate(existQuestion._id, {user_answers}, { new: true })
+        }
+
     } catch (err) {
         throw boom.boomify(err)
     }

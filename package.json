@@ -4,7 +4,8 @@
   "description": "A blazing fast REST APIs with Node.js, MongoDB, Fastify and Swagger.",
   "main": "index.js",
   "scripts": {
-    "start": "./node_modules/nodemon/bin/nodemon.js ./src/index.js",
+    "start": "node ./src/index.js",
+    "dev": "nodemon ./src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Siegfried Grimbeek <siegfried.grimbeek@gmail.com> (www.siegfriedgrimbeek.co.za)",
@@ -12,10 +13,13 @@
   "dependencies": {
     "boom": "^7.2.2",
     "cors": "^2.8.5",
-    "fastify": "^1.13.0",
+    "fastify": "^3.8.0",
+    "fastify-cors": "^4.1.0",
     "fastify-mongodb": "^0.9.1",
     "fastify-swagger": "^0.15.3",
-    "mongoose": "^5.3.14"
+    "fuzzyis": "^1.0.2",
+    "mongoose": "^5.3.14",
+    "process": "^0.11.10"
   },
   "devDependencies": {
     "nodemon": "^1.18.7"

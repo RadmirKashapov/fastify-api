@@ -7,13 +7,9 @@ exports.addQuestionResultsSchema = {
         properties: {
             user_id: { type: 'number' },
             theme_id: { type: 'number' },
-            test_id: { type: 'number' },
+            test_id: { type: 'string' },
             question: { type: 'string' },
-            points: { type: 'number' },
-            difficulty: { type: 'number' },
-            user_answers: { type: 'object' },
-            right_answers: { type: 'object' },
-            result: { type: 'number' }
+            user_answers: { type: 'array' }
         }
     },
     response: {
@@ -21,17 +17,6 @@ exports.addQuestionResultsSchema = {
             description: 'Successful response',
             type: 'object',
             properties: {
-                _id: { type: 'string' },
-                user_id: { type: 'number' },
-                theme_id: { type: 'number' },
-                test_id: { type: 'number' },
-                question: { type: 'string' },
-                points: { type: 'number' },
-                difficulty: { type: 'number' },
-                user_answers: { type: 'object' },
-                right_answers: { type: 'object' },
-                result: { type: 'number' },
-                __v: { type: 'number' }
             }
         }
     }
@@ -47,7 +32,7 @@ exports.updateQuestionResultsSchema = {
             _id: { type: 'string' },
             user_id: { type: 'number' },
             theme_id: { type: 'number' },
-            test_id: { type: 'number' },
+            test_id: { type: 'string' },
             question: { type: 'string' },
             points: { type: 'number' },
             difficulty: { type: 'number' },
@@ -64,13 +49,14 @@ exports.updateQuestionResultsSchema = {
                 _id: { type: 'string' },
                 user_id: { type: 'number' },
                 theme_id: { type: 'number' },
-                test_id: { type: 'number' },
+                test_id: { type: 'string' },
                 question: { type: 'string' },
                 points: { type: 'number' },
                 difficulty: { type: 'number' },
                 user_answers: { type: 'object' },
                 right_answers: { type: 'object' },
                 result: { type: 'number' },
+                nextQuestion: { type: 'string' },
                 __v: { type: 'number' }
             }
         }

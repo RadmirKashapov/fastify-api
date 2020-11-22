@@ -6,10 +6,9 @@ exports.addTestSchema = {
         type: 'object',
         properties: {
             theme_id: {type: 'number'},
-            test_id: {type: 'number'},
-            easy_questions: { type: 'object' },
-            medium_questions: { type: 'object' },
-            difficult_questions: { type: 'object' }
+            easy_questions: { type: 'array' },
+            medium_questions: { type: 'array' },
+            difficult_questions: { type: 'array' }
         }
     },
     response: {
@@ -19,10 +18,9 @@ exports.addTestSchema = {
             properties: {
                 _id: {type: 'string'},
                 theme_id: {type: 'number'},
-                test_id: {type: 'number'},
-                easy_questions: { type: 'object' },
-                medium_questions: { type: 'object' },
-                difficult_questions: { type: 'object' },
+                easy_questions: { type: 'array' },
+                medium_questions: { type: 'array' },
+                difficult_questions: { type: 'array' },
                 __v: {type: 'number'}
             }
         }
@@ -37,7 +35,6 @@ exports.updateTestSchema = {
         type: 'object',
         properties: {
             theme_id: {type: 'number'},
-            test_id: {type: 'number'},
             easy_questions: { type: 'object' },
             medium_questions: { type: 'object' },
             difficult_questions: { type: 'object' },
@@ -49,11 +46,30 @@ exports.updateTestSchema = {
             type: 'object',
             properties: {
                 _id: {type: 'string'},
-                test_id: {type: 'number'},
                 theme_id: {type: 'number'},
                 easy_questions: { type: 'object' },
                 medium_questions: { type: 'object' },
                 difficult_questions: { type: 'object' },
+                __v: {type: 'number'}
+            }
+        }
+    }
+}
+
+exports.testSchema = {
+    description: 'Get test',
+    tags: ['tests'],
+    summary: 'Get tests',
+    response: {
+        200: {
+            description: 'Successful response',
+            type: 'array',
+            properties: {
+                _id: {type: 'string'},
+                theme_id: {type: 'number'},
+                easy_questions: { type: 'array' },
+                medium_questions: { type: 'array' },
+                difficult_questions: { type: 'array' },
                 __v: {type: 'number'}
             }
         }
