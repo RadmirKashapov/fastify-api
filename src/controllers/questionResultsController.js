@@ -46,9 +46,6 @@ exports.addQuestionResults = async (req, reply) => {
 
         return currentQuestionResult
 
-
-
-
     } catch (err) {
         throw boom.boomify(err)
     }
