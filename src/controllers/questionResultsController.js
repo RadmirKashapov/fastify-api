@@ -38,7 +38,7 @@ exports.addQuestionResults = async (req, reply) => {
             currentQuestionResult = await QuestionResults.findByIdAndUpdate(existQuestion._id, {user_answers}, { new: true })
         }
 
-        console.log(currentQuestionResult)
+       return currentQuestionResult
 
 
 
