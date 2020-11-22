@@ -4,7 +4,7 @@ const mongoose = require('mongoose'), Schema = mongoose.Schema
 const questionResultsSchema = new mongoose.Schema({
     user_id: Number,
     theme_id: Number,
-    test_id: { type: Schema.Types.ObjectId, ref: 'question' },
+    test_id: { type: Schema.Types.ObjectId, ref: 'test' },
     question: { type: Schema.Types.ObjectId, ref: 'question' },
     user_answers: [Number]
 })
