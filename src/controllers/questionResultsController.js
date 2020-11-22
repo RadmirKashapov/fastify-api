@@ -1,7 +1,7 @@
 const boom = require('boom')
 
 const QuestionResults = require('../models/QuestionResults')
-const FuzzyController = require('../controllers/fuzzyController')
+//const FuzzyController = require('../controllers/fuzzyController')
 const TestModel = require('../models/Test')
 const TestResultModel = require('../models/TestResults')
 const Question = require('../models/Question')
@@ -32,7 +32,7 @@ exports.addQuestionResults = async (req, reply) => {
     try {
         const {user_id, theme_id, test_id, question, user_answers} = req.body
 
-        let existQuestion = await QuestionResults.findOne({theme_id: theme_id, user_id:user_id, test_id: test_id, _id: question})
+        let existQuestion = await QuestionResults.findOne({theme_id: theme_id, user_id:user_id, test_id: new mongoose.Types.ObjectId(test_id), '_id': new mongoose.Types.ObjectId(question)})
 
         let currentQuestionResult;
         if (existQuestion == null) {
@@ -77,7 +77,7 @@ exports.deleteQuestionResults = async (req, reply) => {
 
 exports.getMaxPointPerTest = async (_id, _theme_id) => {
 
-    let tests = await Test.findOne({theme_id: _theme_id, _id})
+    let tests = await Test.findOne({theme_id: _theme_id, '_id':_id})
     tests.easy_questions = await Promise.all(tests.easy_questions.map(async (q) => {
         const que = await Question.findById(q._id)
 
