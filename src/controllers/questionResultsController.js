@@ -32,17 +32,21 @@ exports.addQuestionResults = async (req, reply) => {
     try {
         const {user_id, theme_id, test_id, question, user_answers} = req.body
 
-        let existQuestion = await QuestionResults.findOne({theme_id, user_id, test_id, _id: question})
+        let existQuestion = await QuestionResults.findOne({theme_id: theme_id, user_id:user_id, test_id: test_id, _id: question})
 
         let currentQuestionResult;
         if (existQuestion == null) {
             const questionResult = new QuestionResults(req.body)
-            currentQuestionResult = await questionResult.save()
+            currentQuestionResult = await Promise.all(questionResult.save())
         } else {
-            currentQuestionResult = await QuestionResults.findByIdAndUpdate(existQuestion._id, {user_answers}, {new: true})
+            currentQuestionResult = await Promise.all(QuestionResults.findByIdAndUpdate(existQuestion._id, {user_answers}, {new: true}))
         }
 
-        let maxPointPerTest = get
+        let maxPointPerTest = await Promise.all(this.getMaxPointPerTest(test_id, theme_id))
+
+        return currentQuestionResult
+
+
 
 
     } catch (err) {
@@ -74,7 +78,7 @@ exports.deleteQuestionResults = async (req, reply) => {
     }
 }
 
-getMaxPointPerTest = async (_id, _theme_id) => {
+exports.getMaxPointPerTest = async (_id, _theme_id) => {
 
     let tests = await Test.findOne({theme_id: _theme_id, _id})
     tests.easy_questions = await Promise.all(tests.easy_questions.map(async (q) => {
