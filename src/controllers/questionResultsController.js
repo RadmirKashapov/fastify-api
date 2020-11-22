@@ -1,6 +1,10 @@
 const boom = require('boom')
 
 const QuestionResults = require('../models/QuestionResults')
+const FuzzyController = require('../controllers/fuzzyController')
+const TestModel = require('../models/Test')
+const TestResultModel = require('../models/TestResults')
+const Question = require('../models/Question')
 
 // Get all questionResults
 exports.getAllQuestionResults = async (req, reply) => {
@@ -26,7 +30,7 @@ exports.getQuestionResultsById = async (req, reply) => {
 // Add a new questionResult
 exports.addQuestionResults = async (req, reply) => {
     try {
-        const { user_id, theme_id, test_id, question, user_answers } = req.body
+        const {user_id, theme_id, test_id, question, user_answers} = req.body
 
         let existQuestion = await QuestionResults.findOne({theme_id, user_id, test_id, _id: question})
 
@@ -35,11 +39,10 @@ exports.addQuestionResults = async (req, reply) => {
             const questionResult = new QuestionResults(req.body)
             currentQuestionResult = await questionResult.save()
         } else {
-            currentQuestionResult = await QuestionResults.findByIdAndUpdate(existQuestion._id, {user_answers}, { new: true })
+            currentQuestionResult = await QuestionResults.findByIdAndUpdate(existQuestion._id, {user_answers}, {new: true})
         }
 
-       return currentQuestionResult
-
+        let maxPointPerTest = get
 
 
     } catch (err) {
@@ -69,4 +72,49 @@ exports.deleteQuestionResults = async (req, reply) => {
     } catch (err) {
         throw boom.boomify(err)
     }
+}
+
+getMaxPointPerTest = async (_id, _theme_id) => {
+
+    let tests = await Test.findOne({theme_id: _theme_id, _id})
+    tests.easy_questions = await Promise.all(tests.easy_questions.map(async (q) => {
+        const que = await Question.findById(q._id)
+
+        if (que != null) {
+            que.right_answers = undefined
+            return que
+        }
+    }))
+    tests.medium_questions = await Promise.all(tests.medium_questions.map(async (q) => {
+        const que = await Question.findById(q._id)
+
+        if (que != null) {
+            que.right_answers = undefined
+            return que
+        }
+    }))
+    tests.difficult_questions = await Promise.all(tests.difficult_questions.map(async (q) => {
+        const que = await Question.findById(q._id)
+
+        if (que != null) {
+            que.right_answers = undefined
+            return que
+        }
+    }))
+
+    let maxPointPerTest = 0
+
+    tests.easy_questions.forEach(s => {
+        maxPointPerTest += s.points
+    })
+
+    tests.medium_questions.forEach(s => {
+        maxPointPerTest += s.points
+    })
+
+    tests.difficult_questions.forEach(s => {
+        maxPointPerTest += s.points
+    })
+
+    return maxPointPerTest
 }
