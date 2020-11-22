@@ -24,7 +24,7 @@ const swagger = require('./config/swagger')
 fastify.register(require('fastify-swagger'), swagger.options)
 
 // Connect to DB
-mongoose.connect("mongodb+srv://BCSAdmin:YA35kUEzURnayYf@cluster0.mrofz.mongodb.net/scat?retryWrites=true&w=majority")
+mongoose.connect("mongodb+srv://BCSAdmin:YA35kUEzURnayYf@cluster0.mrofz.mongodb.net/scat", {useNewUrlParser: true, useUnifiedTopology: true})
   .then(() => console.log('MongoDB connected...'))
   .catch(err => console.log(err))
 
