@@ -300,6 +300,9 @@ exports.deleteQuestionResults = async (req, reply) => {
 getMaxPointPerTest = async (_id, _theme_id) => {
 
     let tests = await TestModel.findById(_id)
+
+    let maxPoint = 0
+
     tests.easy_questions = await Promise.all(tests.easy_questions.map(async (q) => {
         const que = await Question.findById(q._id)
 
@@ -325,5 +328,5 @@ getMaxPointPerTest = async (_id, _theme_id) => {
         }
     }))
 
-    return [Math.max(tests.difficult_questions.length, tests.medium_questions.length, tests.easy_questions.length)]
+    return [tests.difficult_questions.length * 6 + tests.medium_questions.length * 4 + tests.easy_questions.length * 2]
 }
