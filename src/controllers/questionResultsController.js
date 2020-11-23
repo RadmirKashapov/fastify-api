@@ -1,5 +1,5 @@
 const boom = require('boom')
-
+const mongoose = require('mongoose')
 const QuestionResults = require('../models/QuestionResults')
 const FuzzyController = require('../controllers/fuzzyController')
 const TestModel = require('../models/Test')
@@ -31,18 +31,17 @@ exports.getQuestionResultsById = async (req, reply) => {
 exports.addQuestionResults = async (req, reply) => {
     try {
         const {user_id, theme_id, test_id, question, user_answers} = req.body
-
         let existQuestion = await QuestionResults.findOne({theme_id: theme_id, user_id:user_id, test_id: new mongoose.Types.ObjectId(test_id), '_id': new mongoose.Types.ObjectId(question)})
-
         let currentQuestionResult;
         if (existQuestion == null) {
             const questionResult = new QuestionResults(req.body)
-            currentQuestionResult = await Promise.all(questionResult.save())
+            currentQuestionResult = await questionResult.save()
         } else {
-            currentQuestionResult = await Promise.all(QuestionResults.findByIdAndUpdate(existQuestion._id, {user_answers}, {new: true}))
+            currentQuestionResult = await QuestionResults.findByIdAndUpdate(existQuestion._id, {user_answers}, {new: true})
         }
 
         let maxPointPerTest = await Promise.all(await getMaxPointPerTest(test_id, theme_id))
+
         maxPointPerTest = maxPointPerTest[0]
 
         const currentQuestion = await Question.findById(question)
@@ -55,8 +54,27 @@ exports.addQuestionResults = async (req, reply) => {
         let allQuestionsPerTest = await Question.find({subtheme: theme_id})
         allQuestionsPerTest = allQuestionsPerTest.map(s => s._id)
 
+        let pointPerResult
+        if(currentQuestionResult == null)
+            pointPerResult = 0
+        else pointPerResult = currentQuestionResult.points
+
+        let maxPointPerQuestion
+        if (currentQuestion == null)
+            maxPointPerQuestion = 1
+        else maxPointPerQuestion = currentQuestion.points
+
+        let currentTestPoints
+        if (currentTestResult == null)
+            currentTestPoints = 0
+        else currentTestPoints = currentTestResult.points
+
+        if(maxPointPerTest === 0 && currentTestPoints === 0)
+            maxPointPerTest = 1
+
+
         let nextQuestion = "-1";
-        switch (FuzzyController.getNextQuestionLevel(currentQuestionResult.points / currentQuestion.points, currentTestResult.points / maxPointPerTest)) {
+        switch (FuzzyController.getNextQuestionLevel(pointPerResult / maxPointPerQuestion, currentTestPoints / maxPointPerTest)) {
             case  -1:
                 allQuestionsPerTest = allQuestionsPerTest.filter(s => s.difficulty === 1 && !allUserQuestionResults.includes(s._id))
                 if (allQuestionsPerTest.length > 0) {
@@ -75,8 +93,7 @@ exports.addQuestionResults = async (req, reply) => {
                     nextQuestion = allQuestionsPerTest[0]
                 }
         }
-
-        return currentQuestionResult['nextQuestion'] = nextQuestion
+        return {nextQuestion: nextQuestion, ...currentQuestionResult}
 
     } catch (err) {
         throw boom.boomify(err)
