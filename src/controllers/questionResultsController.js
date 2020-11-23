@@ -49,10 +49,8 @@ exports.addQuestionResults = async (req, reply) => {
         const currentTestResult = await TestResultModel.findOne({test_id: new mongoose.Types.ObjectId(test_id), user_id: user_id})
 
         let allUserQuestionResults = await QuestionResults.find({test_id: new mongoose.Types.ObjectId(test_id), user_id: user_id})
-
         allUserQuestionResults = allUserQuestionResults.map(s => s.question)
-        let allQuestionsPerTest = await Question.find({subtheme: theme_id})
-        allQuestionsPerTest = allQuestionsPerTest.map(s => s._id)
+        let allQuestionsPerTest = await TestModel.findOne({theme_id: theme_id, _id: test_id})
 
         let pointPerResult
         if(currentQuestionResult == null)
@@ -72,27 +70,39 @@ exports.addQuestionResults = async (req, reply) => {
         if(maxPointPerTest === 0 && currentTestPoints === 0)
             maxPointPerTest = 1
 
-
         let nextQuestion = "-1";
-        switch (FuzzyController.getNextQuestionLevel(pointPerResult / maxPointPerQuestion, currentTestPoints / maxPointPerTest)) {
+        const fuzzyResult = FuzzyController.getNextQuestionLevel(pointPerResult / maxPointPerQuestion, currentTestPoints / maxPointPerTest)
+        switch (fuzzyResult) {
             case  -1:
-                allQuestionsPerTest = allQuestionsPerTest.filter(s => s.difficulty === 1 && !allUserQuestionResults.includes(s._id))
+                allQuestionsPerTest = await Promise.all(allQuestionsPerTest.easy_questions.filter(async (s) => {
+                    const question = Question.findById(new mongoose.Types.ObjectId(s))
+                    console.log(question)
+                    return question.difficulty === 1 && !allUserQuestionResults.includes(s)
+                }))
                 if (allQuestionsPerTest.length > 0) {
                     nextQuestion = allQuestionsPerTest[0]
                 }
                 break
             case 1:
-                allQuestionsPerTest = allQuestionsPerTest.filter(s => s.difficulty === 3 && !allUserQuestionResults.includes(s._id))
+                allQuestionsPerTest = await Promise.all(allQuestionsPerTest.difficult_questions.filter(async (s) => {
+                    const question = Question.findById(new mongoose.Types.ObjectId(s))
+                    return question.difficulty === 3 && !allUserQuestionResults.includes(s)
+                }))
                 if (allQuestionsPerTest.length > 0) {
-                    nextQuestion = allQuestionsPerTest[0]
+                    nextQuestion = allQuestionsPerTest.difficult_questions[0]
                 }
                 break
             default:
-                allQuestionsPerTest = allQuestionsPerTest.filter(s => s.difficulty === 2 && !allUserQuestionResults.includes(s._id))
+                allQuestionsPerTest = await Promise.all(allQuestionsPerTest.medium_questions.filter(async (s) => {
+                    const question = Question.findById(new mongoose.Types.ObjectId(s))
+                    return question.difficulty === 2 && !allUserQuestionResults.includes(s)
+                }))
                 if (allQuestionsPerTest.length > 0) {
                     nextQuestion = allQuestionsPerTest[0]
                 }
         }
+        console.log(allQuestionsPerTest)
+
         return {nextQuestion: nextQuestion, ...currentQuestionResult}
 
     } catch (err) {
