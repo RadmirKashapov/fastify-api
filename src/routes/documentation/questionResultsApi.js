@@ -37,7 +37,8 @@ exports.addQuestionResultsSchema = {
                 right_answers: { type: 'array' },
                 points: { type: 'number' },
                 subtheme: { type: 'number' },
-                answers: { type: 'object' }
+                answers: { type: 'object' },
+                __v: { type: 'number' }
             }
         }
     }

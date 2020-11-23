@@ -16,8 +16,7 @@ const routes = [
     {
         method: 'POST',
         url: '/api/question/results',
-        handler: questionResultsController.addQuestionResults,
-        schema: questionResultsDocumentation.addQuestionResultsSchema
+        handler: questionResultsController.addQuestionResults
     },
     {
         method: 'PUT',

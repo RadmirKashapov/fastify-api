@@ -31,7 +31,12 @@ exports.getQuestionResultsById = async (req, reply) => {
 exports.addQuestionResults = async (req, reply) => {
     try {
         const {user_id, theme_id, test_id, question, user_answers} = req.body
-        let existQuestion = await QuestionResults.findOne({theme_id: theme_id, user_id:user_id, test_id: new mongoose.Types.ObjectId(test_id), '_id': new mongoose.Types.ObjectId(question)})
+        let existQuestion = await QuestionResults.findOne({
+            theme_id: theme_id,
+            user_id: user_id,
+            test_id: new mongoose.Types.ObjectId(test_id),
+            '_id': new mongoose.Types.ObjectId(question)
+        })
         let currentQuestionResult;
         if (existQuestion == null) {
             const questionResult = new QuestionResults(req.body)
@@ -53,7 +58,7 @@ exports.addQuestionResults = async (req, reply) => {
         const currentTest = await TestModel.findOne({theme_id, _id: test_id})
 
         let pointPerResult
-        if(currentQuestionResult == null)
+        if (currentQuestionResult == null)
             pointPerResult = 0
         else pointPerResult = currentQuestionResult.points
 
@@ -68,7 +73,7 @@ exports.addQuestionResults = async (req, reply) => {
         else {
             currentTestPoints = 0
             let lessons = []
-            if(allUserQuestionResults.length > 0) {
+            if (allUserQuestionResults.length > 0) {
                 let results = allUserQuestionResults.slice(0)
                 await Promise.all(results.map(async (result) => {
                     const question = await Question.findById(result.question)
@@ -86,24 +91,21 @@ exports.addQuestionResults = async (req, reply) => {
             }
         }
 
-        console.log(currentTestPoints)
-
-        if(maxPointPerTest === 0 && currentTestPoints === 0)
+        if (maxPointPerTest === 0 && currentTestPoints === 0)
             maxPointPerTest = 1
 
         let nextQuestion = "-1";
 
         allUserQuestionResults = allUserQuestionResults.map(s => s._id)
-        if(currentTest.medium_questions.length === allUserQuestionResults.length){
+        if (currentTest.medium_questions.length === allUserQuestionResults.length) {
             nextQuestion = {}
             return reply.code(200).send(nextQuestion)
         }
 
         const fuzzyResult = FuzzyController.getNextQuestionLevel(pointPerResult / maxPointPerQuestion, currentTestPoints / maxPointPerTest)
         switch (fuzzyResult) {
-            case  -1:
+            case -1:
                 allQuestionsPerTest = await Promise.all(allQuestionsPerTest.easy_questions.filter(async (s) => {
-
                     return allUserQuestionResults.includes(s) === false
                 }))
                 if (allQuestionsPerTest.length > 0) {
@@ -111,6 +113,7 @@ exports.addQuestionResults = async (req, reply) => {
 
                     if (nextQuestion != null) {
                         nextQuestion.right_answers = undefined
+
                         return nextQuestion
                     }
                 }
@@ -138,14 +141,13 @@ exports.addQuestionResults = async (req, reply) => {
                         return nextQuestion
                     }
                 }
-
         }
 
-        if (nextQuestion === "-1")
+        if (nextQuestion === "-1") {
             nextQuestion = {}
+        }
 
         return reply.code(200).send(nextQuestion)
-
     } catch (err) {
         throw boom.boomify(err)
     }
@@ -156,8 +158,8 @@ exports.updateQuestionResults = async (req, reply) => {
     try {
         const id = req.params.id
         const questionResult = req.body
-        const { ...updateData } = questionResult
-        const currentQuestionResult = await QuestionResults.findByIdAndUpdate(id, updateData, { new: true })
+        const {...updateData} = questionResult
+        const currentQuestionResult = await QuestionResults.findByIdAndUpdate(id, updateData, {new: true})
 
         const {user_id, theme_id, test_id, question} = req.body
 
@@ -172,7 +174,7 @@ exports.updateQuestionResults = async (req, reply) => {
         const currentTest = await TestModel.findOne({theme_id, _id: test_id})
 
         let pointPerResult
-        if(currentQuestionResult == null)
+        if (currentQuestionResult == null)
             pointPerResult = 0
         else pointPerResult = currentQuestionResult.points
 
@@ -187,7 +189,7 @@ exports.updateQuestionResults = async (req, reply) => {
         else {
             currentTestPoints = 0
             let lessons = []
-            if(allUserQuestionResults.length > 0) {
+            if (allUserQuestionResults.length > 0) {
                 let results = allUserQuestionResults.slice(0)
                 await Promise.all(results.map(async (result) => {
                     const question = await Question.findById(result.question)
@@ -205,14 +207,14 @@ exports.updateQuestionResults = async (req, reply) => {
             }
         }
 
-        if(maxPointPerTest === 0 && currentTestPoints === 0)
+        if (maxPointPerTest === 0 && currentTestPoints === 0)
             maxPointPerTest = 1
 
         let nextQuestion = "-1";
 
         allUserQuestionResults = allUserQuestionResults.map(s => s._id)
 
-        if(currentTest.medium_questions.length === allUserQuestionResults.length){
+        if (currentTest.medium_questions.length === allUserQuestionResults.length) {
             nextQuestion = {}
             return reply.code(200).send(nextQuestion)
         }
