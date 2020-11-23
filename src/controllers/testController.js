@@ -1,6 +1,6 @@
 const boom = require('boom')
 
-
+const mongoose = require('mongoose')
 const Test = require('../models/Test')
 const Question = require('../models/Question')
 
@@ -63,9 +63,10 @@ exports.getTestByIdAndTheme = async (req, reply) => {
         const _id = req.params.id
         const _theme_id = req.params.theme_id
 
-        let tests = await Test.findById(_id)
+        let tests = await Test.findOne({theme_id: _theme_id, _id})
+        console.log(tests)
         tests.easy_questions = await Promise.all(tests.easy_questions.map(async (q) => {
-            const que = await Question.findById(q._id)
+            const que = await Question.findById(new mongoose.Types.ObjectId(q))
 
             if (que != null) {
                 que.right_answers = undefined
