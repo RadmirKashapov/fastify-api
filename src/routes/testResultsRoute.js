@@ -28,11 +28,6 @@ const routes = [
         method: 'GET',
         url: '/api/test/results/:theme_id/:user_id',
         handler: testResultsController.countUserTestResultsByTheme
-    },
-    {
-        method: 'GET',
-        url: '/api/test/results/:id/max/points',
-        handler: testResultsController.getMaxPointPerTest
     }
 ]
 
