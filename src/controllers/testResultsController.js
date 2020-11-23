@@ -3,6 +3,7 @@ const boom = require('boom')
 const TestResults = require('../models/TestResults')
 const QuestionResults = require('../models/QuestionResults')
 const Question = require('../models/Question')
+const Test = require('../models/Test')
 
 exports.getAllTestResults = async (req, reply) => {
     try {
@@ -110,6 +111,40 @@ exports.countUserTestResultsByTheme = async (req, reply) => {
     }
 }
 
+exports.getMaxPointPerTest = async (req, reply) => {
+    try {
+        const id = req.params.id
+        let tests = await Test.findById(id)
+        tests.easy_questions = await Promise.all(tests.easy_questions.map(async (q) => {
+            const que = await Question.findById(q._id)
+
+            if (que != null) {
+                que.right_answers = undefined
+                return que
+            }
+        }))
+        tests.medium_questions = await Promise.all(tests.medium_questions.map(async (q) => {
+            const que = await Question.findById(q._id)
+
+            if (que != null) {
+                que.right_answers = undefined
+                return que
+            }
+        }))
+        tests.difficult_questions = await Promise.all(tests.difficult_questions.map(async (q) => {
+            const que = await Question.findById(q._id)
+
+            if (que != null) {
+                que.right_answers = undefined
+                return que
+            }
+        }))
+
+        return [Math.max(tests.difficult_questions.length, tests.medium_questions.length, tests.easy_questions.length)]
+    } catch (err) {
+        throw boom.boomify(err)
+    }
+}
 
 
 

@@ -46,10 +46,7 @@ exports.addQuestionResults = async (req, reply) => {
 
         const currentQuestion = await Question.findById(question)
 
-        const currentTestResult = await TestResultModel.findOne({test_id, user_id})
-
         let allUserQuestionResults = await QuestionResults.find({test_id, user_id})
-        allUserQuestionResults = allUserQuestionResults.map(s => s.question)
         let allQuestionsPerTest = await TestModel.findOne({theme_id, _id: test_id})
         const currentTest = await TestModel.findOne({theme_id, _id: test_id})
 
@@ -64,15 +61,37 @@ exports.addQuestionResults = async (req, reply) => {
         else maxPointPerQuestion = currentQuestion.points
 
         let currentTestPoints
-        if (currentTestResult == null)
+        if (allUserQuestionResults == null)
             currentTestPoints = 0
-        else currentTestPoints = currentTestResult.points
+        else {
+            currentTestPoints = 0
+            let lessons = []
+            if(allUserQuestionResults.length > 0) {
+                let results = allUserQuestionResults.slice(0)
+                await Promise.all(results.map(async (result) => {
+                    const question = await Question.findById(result.question)
+
+                    if (question != null) {
+                        if (question.right_answers.every(v => result.user_answers.indexOf(v) >= 0)) {
+                            currentTestPoints += question.points
+                        } else {
+                            lessons.push(question.subtheme)
+                        }
+                    }
+
+                    return result
+                }))
+            }
+        }
+
+        console.log(currentTestPoints)
 
         if(maxPointPerTest === 0 && currentTestPoints === 0)
             maxPointPerTest = 1
 
         let nextQuestion = "-1";
 
+        allUserQuestionResults = allUserQuestionResults.map(s => s._id)
         if(currentTest.medium_questions.length === allUserQuestionResults.length){
             nextQuestion = {}
             return reply.code(200).send(nextQuestion)
@@ -82,23 +101,20 @@ exports.addQuestionResults = async (req, reply) => {
         switch (fuzzyResult) {
             case  -1:
                 allQuestionsPerTest = await Promise.all(allQuestionsPerTest.easy_questions.filter(async (s) => {
-                    const question = await Question.findById(s)
-                    return question.difficulty === 1 && allUserQuestionResults.includes(s) === false
+
+                    return allUserQuestionResults.includes(s) === false
                 }))
                 if (allQuestionsPerTest.length > 0) {
                     nextQuestion = await Question.findById(allQuestionsPerTest[0])
 
                     if (nextQuestion != null) {
                         nextQuestion.right_answers = undefined
-                        console.log(nextQuestion.answers)
-
                         return nextQuestion
                     }
                 }
             case 0:
                 allQuestionsPerTest = await Promise.all(allQuestionsPerTest.medium_questions.filter(async (s) => {
-                    const question = await Question.findById(s)
-                    return question.difficulty === 2 && allUserQuestionResults.includes(s) === false
+                    return allUserQuestionResults.includes(s) === false
                 }))
                 if (allQuestionsPerTest.length > 0) {
                     nextQuestion = await Question.findById(allQuestionsPerTest[0])
@@ -110,8 +126,7 @@ exports.addQuestionResults = async (req, reply) => {
                 }
             case 1:
                 allQuestionsPerTest = await Promise.all(allQuestionsPerTest.difficult_questions.filter(async (s) => {
-                    const question = await Question.findById(s)
-                    return question.difficulty === 3 && allUserQuestionResults.includes(s) === false
+                    return allUserQuestionResults.includes(s) === false
                 }))
                 if (allQuestionsPerTest.length > 0) {
                     nextQuestion = await Question.findById(allQuestionsPerTest[0])
@@ -150,10 +165,7 @@ exports.updateQuestionResults = async (req, reply) => {
 
         const currentQuestion = await Question.findById(question)
 
-        const currentTestResult = await TestResultModel.findOne({test_id, user_id})
-
         let allUserQuestionResults = await QuestionResults.find({test_id, user_id})
-        allUserQuestionResults = allUserQuestionResults.map(s => s.question)
         let allQuestionsPerTest = await TestModel.findOne({theme_id, _id: test_id})
         const currentTest = await TestModel.findOne({theme_id, _id: test_id})
 
@@ -168,14 +180,35 @@ exports.updateQuestionResults = async (req, reply) => {
         else maxPointPerQuestion = currentQuestion.points
 
         let currentTestPoints
-        if (currentTestResult == null)
+        if (allUserQuestionResults == null)
             currentTestPoints = 0
-        else currentTestPoints = currentTestResult.points
+        else {
+            currentTestPoints = 0
+            let lessons = []
+            if(allUserQuestionResults.length > 0) {
+                let results = allUserQuestionResults.slice(0)
+                await Promise.all(results.map(async (result) => {
+                    const question = await Question.findById(result.question)
+
+                    if (question != null) {
+                        if (question.right_answers.every(v => result.user_answers.indexOf(v) >= 0)) {
+                            currentTestPoints += question.points
+                        } else {
+                            lessons.push(question.subtheme)
+                        }
+                    }
+
+                    return result
+                }))
+            }
+        }
 
         if(maxPointPerTest === 0 && currentTestPoints === 0)
             maxPointPerTest = 1
 
         let nextQuestion = "-1";
+
+        allUserQuestionResults = allUserQuestionResults.map(s => s._id)
 
         if(currentTest.medium_questions.length === allUserQuestionResults.length){
             nextQuestion = {}
@@ -186,9 +219,7 @@ exports.updateQuestionResults = async (req, reply) => {
         switch (fuzzyResult) {
             case  -1:
                 allQuestionsPerTest = await Promise.all(allQuestionsPerTest.easy_questions.filter(async (s) => {
-                    const question = await Question.findById(s)
-
-                    return question.difficulty === 1 && allUserQuestionResults.includes(s) === false
+                    return allUserQuestionResults.includes(s) === false
                 }))
                 if (allQuestionsPerTest.length > 0) {
                     nextQuestion = await Question.findById(allQuestionsPerTest[0])
@@ -200,8 +231,7 @@ exports.updateQuestionResults = async (req, reply) => {
                 }
             case 0:
                 allQuestionsPerTest = await Promise.all(allQuestionsPerTest.medium_questions.filter(async (s) => {
-                    const question = await Question.findById(s)
-                    return question.difficulty === 2 && allUserQuestionResults.includes(s) === false
+                    return allUserQuestionResults.includes(s) === false
                 }))
                 if (allQuestionsPerTest.length > 0) {
                     nextQuestion = await Question.findById(allQuestionsPerTest[0])
@@ -213,8 +243,7 @@ exports.updateQuestionResults = async (req, reply) => {
                 }
             case 1:
                 allQuestionsPerTest = await Promise.all(allQuestionsPerTest.difficult_questions.filter(async (s) => {
-                    const question = await Question.findById(s)
-                    return question.difficulty === 3 && allUserQuestionResults.includes(s) === false
+                    return allUserQuestionResults.includes(s) === false
                 }))
                 if (allQuestionsPerTest.length > 0) {
                     nextQuestion = await Question.findById(allQuestionsPerTest[0])
@@ -247,7 +276,7 @@ exports.deleteQuestionResults = async (req, reply) => {
 
 getMaxPointPerTest = async (_id, _theme_id) => {
 
-    let tests = await TestModel.findOne({theme_id: _theme_id, '_id':_id})
+    let tests = await TestModel.findById(_id)
     tests.easy_questions = await Promise.all(tests.easy_questions.map(async (q) => {
         const que = await Question.findById(q._id)
 
