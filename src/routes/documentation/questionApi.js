@@ -42,7 +42,7 @@ exports.updateQuestionSchema = {
       text: { type: 'string' },
       qtype: { type: 'string' },
       difficulty: { type: 'number' },
-      right_answers: { type: 'number' },
+      right_answers: { type: 'array' },
       points: { type: 'number' },
       subtheme: { type: 'number' },
       answers: { type: 'object' }
@@ -57,7 +57,7 @@ exports.updateQuestionSchema = {
         text: { type: 'string' },
         qtype: { type: 'string' },
         difficulty: { type: 'number' },
-        right_answers: { type: 'number' },
+        right_answers: { type: 'array' },
         points: { type: 'number' },
         subtheme: { type: 'number' },
         answers: { type: 'object' },
