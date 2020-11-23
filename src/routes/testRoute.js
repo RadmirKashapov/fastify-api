@@ -37,6 +37,11 @@ const routes = [
     },
     {
         method: 'GET',
+        url: '/api/test/:id/:theme_id/admin',
+        handler: testController.getTestByIdAndThemeAdmin
+    },
+    {
+        method: 'GET',
         url: '/api/test/:theme_id/all',
         handler: testController.getTestsByTheme,
         schema: testDocumentation.testSchema
