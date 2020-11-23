@@ -109,7 +109,8 @@ exports.countUserTestResults = async (req, reply) => {
                 savedProgress = await TestResults.findByIdAndUpdate(existResult._id, {points, lessons}, { new: true })
             }
 
-            return reply.code(200).send({progress: points / maxP, ...savedProgress})
+            savedProgress.progress = points / maxP
+            return reply.code(200).send(savedProgress)
         }
 
         return reply.code(400).send({ error: 'Результатов для данного пользователя не найдено' })
