@@ -47,6 +47,8 @@ exports.addQuestionResults = async (req, reply) => {
         const currentQuestion = await Question.findById(question)
 
         let allUserQuestionResults = await QuestionResults.find({test_id, user_id})
+
+        // Какое-то гавно
         let allQuestionsPerTest = await TestModel.findOne({theme_id, _id: test_id})
         const currentTest = await TestModel.findOne({theme_id, _id: test_id})
 
