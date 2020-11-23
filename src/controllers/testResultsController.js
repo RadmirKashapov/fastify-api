@@ -3,6 +3,7 @@ const boom = require('boom')
 const TestResults = require('../models/TestResults')
 const QuestionResults = require('../models/QuestionResults')
 const Question = require('../models/Question')
+const Test = require('../models/Test')
 
 exports.getAllTestResults = async (req, reply) => {
     try {
@@ -43,6 +44,35 @@ exports.countUserTestResults = async (req, reply) => {
         const results = await QuestionResults.find({theme_id: _theme_id, user_id: _user_id, test_id: _test_id})
         const existResult = await TestResults.findOne({theme_id: _theme_id, user_id: _user_id, test_id: _test_id})
 
+        let tests = await Test.findById(_test_id)
+        tests.easy_questions = await Promise.all(tests.easy_questions.map(async (q) => {
+            const que = await Question.findById(q._id)
+
+            if (que != null) {
+                que.right_answers = undefined
+                return que
+            }
+        }))
+        tests.medium_questions = await Promise.all(tests.medium_questions.map(async (q) => {
+            const que = await Question.findById(q._id)
+
+            if (que != null) {
+                que.right_answers = undefined
+                return que
+            }
+        }))
+        tests.difficult_questions = await Promise.all(tests.difficult_questions.map(async (q) => {
+            const que = await Question.findById(q._id)
+
+            if (que != null) {
+                que.right_answers = undefined
+                return que
+            }
+        }))
+
+        let maxP =  [Math.max(tests.difficult_questions.length, tests.medium_questions.length, tests.easy_questions.length)]
+
+
         if (results.length > 0) {
             let points = 0
             let lessons = []
@@ -76,7 +106,7 @@ exports.countUserTestResults = async (req, reply) => {
                 savedProgress = await TestResults.findByIdAndUpdate(existResult._id, {points, lessons}, { new: true })
             }
 
-            return reply.code(200).send(savedProgress)
+            return reply.code(200).send({progress: points / maxP, ...savedProgress})
         }
 
         return reply.code(400).send({ error: 'Результатов для данного пользователя не найдено' })
@@ -109,7 +139,6 @@ exports.countUserTestResultsByTheme = async (req, reply) => {
         throw boom.boomify(err)
     }
 }
-
 
 
 
