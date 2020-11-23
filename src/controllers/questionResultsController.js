@@ -338,15 +338,7 @@ getMaxPointPerTest = async (_id, _theme_id) => {
 
     let maxPoint = 0
 
-    tests.easy_questions.forEach(s => {
-        maxPoint += s.points
-    })
-
     tests.medium_questions.forEach(s => {
-        maxPoint += s.points
-    })
-
-    tests.difficult_questions.forEach(s => {
         maxPoint += s.points
     })
 

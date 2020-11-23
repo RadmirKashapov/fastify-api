@@ -72,15 +72,7 @@ exports.countUserTestResults = async (req, reply) => {
 
         let maxP = 0
 
-        tests.easy_questions.forEach(s => {
-            maxP += s.points
-        })
-
         tests.medium_questions.forEach(s => {
-            maxP += s.points
-        })
-
-        tests.difficult_questions.forEach(s => {
             maxP += s.points
         })
 
