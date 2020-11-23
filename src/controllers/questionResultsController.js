@@ -51,6 +51,7 @@ exports.addQuestionResults = async (req, reply) => {
         let allUserQuestionResults = await QuestionResults.find({test_id, user_id})
         allUserQuestionResults = allUserQuestionResults.map(s => s.question)
         let allQuestionsPerTest = await TestModel.findOne({theme_id, _id: test_id})
+        const currentTest = await TestModel.findOne({theme_id, _id: test_id})
 
         let pointPerResult
         if(currentQuestionResult == null)
@@ -70,11 +71,11 @@ exports.addQuestionResults = async (req, reply) => {
         if(maxPointPerTest === 0 && currentTestPoints === 0)
             maxPointPerTest = 1
 
-        let nextQuestion = {};
+        let nextQuestion = "-1";
 
         if(currentTest.medium_questions.length === allUserQuestionResults.length){
-            nextQuestion = null
-            return {nextQuestion: nextQuestion, ...currentQuestionResult}
+            nextQuestion = {}
+            return reply.code(200).send(nextQuestion)
         }
 
         const fuzzyResult = FuzzyController.getNextQuestionLevel(pointPerResult / maxPointPerQuestion, currentTestPoints / maxPointPerTest)
@@ -82,12 +83,17 @@ exports.addQuestionResults = async (req, reply) => {
             case  -1:
                 allQuestionsPerTest = await Promise.all(allQuestionsPerTest.easy_questions.filter(async (s) => {
                     const question = await Question.findById(s)
-
                     return question.difficulty === 1 && allUserQuestionResults.includes(s) === false
                 }))
                 if (allQuestionsPerTest.length > 0) {
-                    nextQuestion = allQuestionsPerTest[0]
-                    return {nextQuestion: nextQuestion, ...currentQuestionResult}
+                    nextQuestion = await Question.findById(allQuestionsPerTest[0])
+
+                    if (nextQuestion != null) {
+                        nextQuestion.right_answers = undefined
+                        console.log(nextQuestion.answers)
+
+                        return nextQuestion
+                    }
                 }
             case 0:
                 allQuestionsPerTest = await Promise.all(allQuestionsPerTest.medium_questions.filter(async (s) => {
@@ -95,8 +101,12 @@ exports.addQuestionResults = async (req, reply) => {
                     return question.difficulty === 2 && allUserQuestionResults.includes(s) === false
                 }))
                 if (allQuestionsPerTest.length > 0) {
-                    nextQuestion = allQuestionsPerTest[0]
-                    return {nextQuestion: nextQuestion, ...currentQuestionResult}
+                    nextQuestion = await Question.findById(allQuestionsPerTest[0])
+
+                    if (nextQuestion != null) {
+                        nextQuestion.right_answers = undefined
+                        return nextQuestion
+                    }
                 }
             case 1:
                 allQuestionsPerTest = await Promise.all(allQuestionsPerTest.difficult_questions.filter(async (s) => {
@@ -104,16 +114,20 @@ exports.addQuestionResults = async (req, reply) => {
                     return question.difficulty === 3 && allUserQuestionResults.includes(s) === false
                 }))
                 if (allQuestionsPerTest.length > 0) {
-                    nextQuestion = allQuestionsPerTest[0]
-                    return {nextQuestion: nextQuestion, ...currentQuestionResult}
+                    nextQuestion = await Question.findById(allQuestionsPerTest[0])
+
+                    if (nextQuestion != null) {
+                        nextQuestion.right_answers = undefined
+                        return nextQuestion
+                    }
                 }
 
         }
 
-        if (nextQuestion === {})
-            nextQuestion = null
+        if (nextQuestion === "-1")
+            nextQuestion = {}
 
-        return {nextQuestion: nextQuestion, ...currentQuestionResult}
+        return reply.code(200).send(nextQuestion)
 
     } catch (err) {
         throw boom.boomify(err)
@@ -161,11 +175,11 @@ exports.updateQuestionResults = async (req, reply) => {
         if(maxPointPerTest === 0 && currentTestPoints === 0)
             maxPointPerTest = 1
 
-        let nextQuestion = {};
+        let nextQuestion = "-1";
 
         if(currentTest.medium_questions.length === allUserQuestionResults.length){
-            nextQuestion = null
-            return {nextQuestion: nextQuestion, ...currentQuestionResult}
+            nextQuestion = {}
+            return reply.code(200).send(nextQuestion)
         }
 
         const fuzzyResult = FuzzyController.getNextQuestionLevel(pointPerResult / maxPointPerQuestion, currentTestPoints / maxPointPerTest)
@@ -178,7 +192,11 @@ exports.updateQuestionResults = async (req, reply) => {
                 }))
                 if (allQuestionsPerTest.length > 0) {
                     nextQuestion = await Question.findById(allQuestionsPerTest[0])
-                    return {nextQuestion: nextQuestion, ...currentQuestionResult}
+
+                    if (nextQuestion != null) {
+                        nextQuestion.right_answers = undefined
+                        return nextQuestion
+                    }
                 }
             case 0:
                 allQuestionsPerTest = await Promise.all(allQuestionsPerTest.medium_questions.filter(async (s) => {
@@ -187,7 +205,11 @@ exports.updateQuestionResults = async (req, reply) => {
                 }))
                 if (allQuestionsPerTest.length > 0) {
                     nextQuestion = await Question.findById(allQuestionsPerTest[0])
-                    return {nextQuestion: nextQuestion, ...currentQuestionResult}
+
+                    if (nextQuestion != null) {
+                        nextQuestion.right_answers = undefined
+                        return nextQuestion
+                    }
                 }
             case 1:
                 allQuestionsPerTest = await Promise.all(allQuestionsPerTest.difficult_questions.filter(async (s) => {
@@ -196,13 +218,17 @@ exports.updateQuestionResults = async (req, reply) => {
                 }))
                 if (allQuestionsPerTest.length > 0) {
                     nextQuestion = await Question.findById(allQuestionsPerTest[0])
-                    return {nextQuestion: nextQuestion, ...currentQuestionResult}
+
+                    if (nextQuestion != null) {
+                        nextQuestion.right_answers = undefined
+                        return nextQuestion
+                    }
                 }
         }
 
-        if (nextQuestion === {})
-            nextQuestion = null
-        return {nextQuestion: nextQuestion, ...currentQuestionResult}
+        if (nextQuestion === "-1")
+            nextQuestion = {}
+        return reply.code(200).send(nextQuestion)
     } catch (err) {
         throw boom.boomify(err)
     }

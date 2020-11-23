@@ -96,6 +96,35 @@ exports.getTestByIdAndTheme = async (req, reply) => {
     }
 }
 
+exports.getTestByIdAndThemeAdmin = async (req, reply) => {
+    try {
+        const _id = req.params.id
+        const _theme_id = req.params.theme_id
+
+        let tests = await Test.findById(_id)
+        tests.easy_questions = await Promise.all(tests.easy_questions.map(async (q) => {
+            const que = await Question.findById(q._id)
+            return que
+        }))
+        tests.medium_questions = await Promise.all(tests.medium_questions.map(async (q) => {
+            const que = await Question.findById(q._id)
+
+            return que
+        }))
+        tests.difficult_questions = await Promise.all(tests.difficult_questions.map(async (q) => {
+            const que = await Question.findById(q._id)
+
+            return que
+        }))
+
+        return tests
+
+    } catch (err) {
+        throw boom.boomify(err)
+    }
+}
+
+
 exports.getTestsByTheme = async (req, reply) => {
     try {
         const _theme_id = req.params.theme_id
