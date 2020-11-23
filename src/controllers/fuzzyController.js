@@ -30,23 +30,8 @@ exports.getNextQuestionLevel = (pointsByQuestion, pointsByTest) => {
 
     system.rules = [
         new Rule(
-            ['poor', null],
-            ['easy'],
-            'and'
-        ),
-        new Rule(
             ['poor', 'poor'],
             ['easy'],
-            'and'
-        ),
-        new Rule(
-            ['poor', 'normal'],
-            ['easy'],
-            'and'
-        ),
-        new Rule(
-            ['poor', 'excellent'],
-            ['middle'],
             'and'
         ),
         new Rule(
@@ -64,12 +49,12 @@ exports.getNextQuestionLevel = (pointsByQuestion, pointsByTest) => {
     const result =  system.getPreciseOutput([pointsByQuestion, pointsByTest])[0]
 
     if(result < 0.3)
-        return console.log('easy')
+        return -1
 
     if(result >= 0.3 && result < 0.6)
-        return console.log('middle')
+        return 0
 
     if (result >= 0.6)
-        return console.log('hard')
+        return 1
 
 }

@@ -27,6 +27,7 @@ exports.addQuestionResultsSchema = {
                 user_answers: { type: 'object' },
                 right_answers: { type: 'object' },
                 result: { type: 'number' },
+                nextQuestion: {type: 'string'},
                 __v: { type: 'number' }
             }
         }
