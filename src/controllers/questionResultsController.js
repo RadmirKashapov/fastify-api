@@ -111,11 +111,12 @@ exports.addQuestionResults = async (req, reply) => {
         }).filter(s => !!s))
         allUserQuestionResults = await Promise.all(allUserQuestionResults.map(async (s) => s.question.toString()))
 
-        const fuzzyResult = FuzzyController.getNextQuestionLevel(pointPerResult / maxPointPerQuestion, currentTestPoints / maxPointPerTest)
+        const fuzzyResult = FuzzyController.getNextQuestionLevel(pointPerResult, currentTestPoints, maxPointPerQuestion, maxPointPerTest)
 
         console.log(pointPerResult)
         console.log(maxPointPerQuestion)
         console.log(currentTestPoints / maxPointPerTest)
+        console.log(maxPointPerTest)
         console.log(fuzzyResult)
 
         switch (fuzzyResult) {
@@ -309,7 +310,6 @@ getMaxPointPerTest = async (_id, _theme_id) => {
 
     let tests = await TestModel.findById(_id)
 
-    let maxPoint = 0
 
     tests.easy_questions = await Promise.all(tests.easy_questions.map(async (q) => {
         const que = await Question.findById(q._id)
@@ -336,5 +336,20 @@ getMaxPointPerTest = async (_id, _theme_id) => {
         }
     }))
 
-    return [tests.difficult_questions.length * 6 + tests.medium_questions.length * 4 + tests.easy_questions.length * 2]
+    let maxPoint = 0
+
+    tests.easy_questions.forEach(s => {
+        maxPoint += s.points
+    })
+
+    tests.medium_questions.forEach(s => {
+        maxPoint += s.points
+    })
+
+    tests.difficult_questions.forEach(s => {
+        maxPoint += s.points
+    })
+
+
+    return [maxPoint]
 }
