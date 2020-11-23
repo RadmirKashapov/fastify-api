@@ -96,7 +96,7 @@ exports.addQuestionResults = async (req, reply) => {
 
         let nextQuestion = "-1";
 
-        allUserQuestionResults = allUserQuestionResults.map(s => s._id)
+        allUserQuestionResults = allUserQuestionResults.map(s => s.question)
         if (currentTest.medium_questions.length === allUserQuestionResults.length) {
             nextQuestion = {}
             return reply.code(200).send(nextQuestion)
