@@ -63,7 +63,7 @@ exports.getTestByIdAndTheme = async (req, reply) => {
         const _id = req.params.id
         const _theme_id = req.params.theme_id
 
-        let tests = Test.findById(_id)
+        let tests = await Test.findById(_id)
         tests.easy_questions = await Promise.all(tests.easy_questions.map(async (q) => {
             const que = await Question.findById(q._id)
 
