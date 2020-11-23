@@ -70,7 +70,13 @@ exports.addQuestionResults = async (req, reply) => {
         if(maxPointPerTest === 0 && currentTestPoints === 0)
             maxPointPerTest = 1
 
-        let nextQuestion = "-1";
+        let nextQuestion = {};
+
+        if(currentTest.medium_questions.length === allUserQuestionResults.length){
+            nextQuestion = null
+            return {nextQuestion: nextQuestion, ...currentQuestionResult}
+        }
+
         const fuzzyResult = FuzzyController.getNextQuestionLevel(pointPerResult / maxPointPerQuestion, currentTestPoints / maxPointPerTest)
         switch (fuzzyResult) {
             case  -1:
@@ -103,6 +109,9 @@ exports.addQuestionResults = async (req, reply) => {
                 }
 
         }
+
+        if (nextQuestion === {})
+            nextQuestion = null
 
         return {nextQuestion: nextQuestion, ...currentQuestionResult}
 
@@ -132,6 +141,7 @@ exports.updateQuestionResults = async (req, reply) => {
         let allUserQuestionResults = await QuestionResults.find({test_id, user_id})
         allUserQuestionResults = allUserQuestionResults.map(s => s.question)
         let allQuestionsPerTest = await TestModel.findOne({theme_id, _id: test_id})
+        const currentTest = await TestModel.findOne({theme_id, _id: test_id})
 
         let pointPerResult
         if(currentQuestionResult == null)
@@ -151,7 +161,13 @@ exports.updateQuestionResults = async (req, reply) => {
         if(maxPointPerTest === 0 && currentTestPoints === 0)
             maxPointPerTest = 1
 
-        let nextQuestion = "-1";
+        let nextQuestion = {};
+
+        if(currentTest.medium_questions.length === allUserQuestionResults.length){
+            nextQuestion = null
+            return {nextQuestion: nextQuestion, ...currentQuestionResult}
+        }
+
         const fuzzyResult = FuzzyController.getNextQuestionLevel(pointPerResult / maxPointPerQuestion, currentTestPoints / maxPointPerTest)
         switch (fuzzyResult) {
             case  -1:
@@ -161,7 +177,7 @@ exports.updateQuestionResults = async (req, reply) => {
                     return question.difficulty === 1 && allUserQuestionResults.includes(s) === false
                 }))
                 if (allQuestionsPerTest.length > 0) {
-                    nextQuestion = allQuestionsPerTest[0]
+                    nextQuestion = await Question.findById(allQuestionsPerTest[0])
                     return {nextQuestion: nextQuestion, ...currentQuestionResult}
                 }
             case 0:
@@ -170,7 +186,7 @@ exports.updateQuestionResults = async (req, reply) => {
                     return question.difficulty === 2 && allUserQuestionResults.includes(s) === false
                 }))
                 if (allQuestionsPerTest.length > 0) {
-                    nextQuestion = allQuestionsPerTest[0]
+                    nextQuestion = await Question.findById(allQuestionsPerTest[0])
                     return {nextQuestion: nextQuestion, ...currentQuestionResult}
                 }
             case 1:
@@ -179,12 +195,13 @@ exports.updateQuestionResults = async (req, reply) => {
                     return question.difficulty === 3 && allUserQuestionResults.includes(s) === false
                 }))
                 if (allQuestionsPerTest.length > 0) {
-                    nextQuestion = allQuestionsPerTest[0]
+                    nextQuestion = await Question.findById(allQuestionsPerTest[0])
                     return {nextQuestion: nextQuestion, ...currentQuestionResult}
                 }
-
         }
 
+        if (nextQuestion === {})
+            nextQuestion = null
         return {nextQuestion: nextQuestion, ...currentQuestionResult}
     } catch (err) {
         throw boom.boomify(err)
