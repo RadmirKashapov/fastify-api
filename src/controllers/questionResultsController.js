@@ -147,7 +147,7 @@ exports.addQuestionResults = async (req, reply) => {
                     }
                 }
             case 1:
-                allQuestionsPerTest.difficult_questions = allQuestionsPerTest.difficult_questions.filter(async (s) => {
+                allQuestionsPerTest.difficult_questions = allQuestionsPerTest.difficult_questions.filter((s) => {
                     return !allUserQuestionResults.includes(s.toString())
                 })
 
