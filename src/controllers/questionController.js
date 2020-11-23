@@ -28,7 +28,7 @@ exports.getQuestionById = async (req, reply) => {
 exports.addQuestion = async (req, reply) => {
   try {
     const question = new Question(req.body)
-    return question.save()
+    return await question.save()
   } catch (err) {
     throw boom.boomify(err)
   }
