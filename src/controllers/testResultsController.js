@@ -70,8 +70,7 @@ exports.countUserTestResults = async (req, reply) => {
             }
         }))
 
-        let maxP =  tests.difficult_questions.length * 6 + tests.medium_questions.length * 4 + tests.easy_questions.length * 2
-
+        let maxP = tests.difficult_questions.length * 6 + tests.medium_questions.length * 4 + tests.easy_questions.length * 2
 
         if (results.length > 0) {
             let points = 0

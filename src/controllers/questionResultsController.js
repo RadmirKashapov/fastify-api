@@ -31,12 +31,14 @@ exports.getQuestionResultsById = async (req, reply) => {
 exports.addQuestionResults = async (req, reply) => {
     try {
         const {user_id, theme_id, test_id, question, user_answers} = req.body
+
         let existQuestion = await QuestionResults.findOne({
             theme_id: theme_id,
             user_id: user_id,
             test_id: test_id,
             question: question
         })
+
         let currentQuestionResult;
         if (existQuestion == null) {
             const questionResult = new QuestionResults(req.body)
@@ -100,11 +102,14 @@ exports.addQuestionResults = async (req, reply) => {
 
         let nextQuestion = "-1";
 
-        allUserQuestionResults = await Promise.all(allUserQuestionResults.map(async (s) => s.question))
-        if (currentTest.medium_questions.length === allUserQuestionResults.length) {
-            nextQuestion = {}
-            return reply.code(200).send(nextQuestion)
-        }
+        let allUserQuestionResultsMiddle = await Promise.all(allUserQuestionResults.map(async (s) => {
+            const que = await Question.findById(s.question)
+
+            if (que.difficulty === 2) {
+                return que
+            }
+        }).filter(s => !!s))
+        allUserQuestionResults = await Promise.all(allUserQuestionResults.map(async (s) => s.question.toString()))
 
         const fuzzyResult = FuzzyController.getNextQuestionLevel(pointPerResult / maxPointPerQuestion, currentTestPoints / maxPointPerTest)
 
@@ -113,17 +118,13 @@ exports.addQuestionResults = async (req, reply) => {
         console.log(currentTestPoints / maxPointPerTest)
         console.log(fuzzyResult)
 
-        console.log(allUserQuestionResults)
-
         switch (fuzzyResult) {
             case -1:
-                allQuestionsPerTest.easy_questions = await Promise.all(allQuestionsPerTest.easy_questions.filter(async (s) => {
-                    console.log(s)
-                    console.log(allUserQuestionResults.includes(s))
-                    return !allUserQuestionResults.includes(s)
-                }))
+                allQuestionsPerTest.easy_questions = allQuestionsPerTest.easy_questions.filter((s) => {
+                    return !allUserQuestionResults.includes(s.toString())
+                })
 
-                if (allQuestionsPerTest.easy_questions.length > 0) {
+                if (allQuestionsPerTest.easy_questions.length > 1) {
                     nextQuestion = await Question.findById(allQuestionsPerTest.easy_questions[0])
 
                     if (nextQuestion != null) {
@@ -133,12 +134,11 @@ exports.addQuestionResults = async (req, reply) => {
                     }
                 }
             case 0:
-                allQuestionsPerTest.medium_questions = await Promise.all(allQuestionsPerTest.medium_questions.filter(async (s) => {
-                    console.log(s)
-                    console.log(allUserQuestionResults.includes(s))
-                    return !allUserQuestionResults.includes(s)
-                }))
-                if (allQuestionsPerTest.medium_questions.length > 0) {
+                allQuestionsPerTest.medium_questions = allQuestionsPerTest.medium_questions.filter((s) => {
+                    return !allUserQuestionResults.includes(s.toString())
+                })
+
+                if (allQuestionsPerTest.medium_questions.length > 1) {
                     nextQuestion = await Question.findById(allQuestionsPerTest.medium_questions[0])
 
                     if (nextQuestion != null) {
@@ -147,12 +147,12 @@ exports.addQuestionResults = async (req, reply) => {
                     }
                 }
             case 1:
-                allQuestionsPerTest.difficult_questions = await Promise.all(allQuestionsPerTest.difficult_questions.filter(async (s) => {
-                    console.log(s)
-                    console.log(allUserQuestionResults.includes(s))
-                    return !allUserQuestionResults.includes(s)
-                }))
-                if (allQuestionsPerTest.difficult_questions.length > 0) {
+                allQuestionsPerTest.difficult_questions = allQuestionsPerTest.difficult_questions.filter(async (s) => {
+                    return !allUserQuestionResults.includes(s.toString())
+                })
+
+                console.log(allQuestionsPerTest.difficult_questions)
+                if (allQuestionsPerTest.difficult_questions.length > 1) {
                     nextQuestion = await Question.findById(allQuestionsPerTest.difficult_questions[0])
 
                     if (nextQuestion != null) {
@@ -162,11 +162,19 @@ exports.addQuestionResults = async (req, reply) => {
                 }
         }
 
+        console.log(allUserQuestionResultsMiddle.length)
+
+        if (allUserQuestionResultsMiddle.length >= 2) {
+            console.log(1111)
+            nextQuestion = {}
+            return reply.code(200).send(nextQuestion)
+        }
+
         if (nextQuestion === "-1") {
             nextQuestion = {}
         }
 
-        return reply.code(200).send(nextQuestion)
+        return [tests.difficult_questions.length * 6 + tests.medium_questions.length * 4 + tests.easy_questions.length * 2]
     } catch (err) {
         throw boom.boomify(err)
     }
