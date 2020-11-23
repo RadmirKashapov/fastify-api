@@ -55,23 +55,3 @@ exports.updateTestSchema = {
         }
     }
 }
-
-exports.testSchema = {
-    description: 'Get test',
-    tags: ['tests'],
-    summary: 'Get tests',
-    response: {
-        200: {
-            description: 'Successful response',
-            type: 'array',
-            properties: {
-                _id: {type: 'string'},
-                theme_id: {type: 'number'},
-                easy_questions: { type: 'array' },
-                medium_questions: { type: 'array' },
-                difficult_questions: { type: 'array' },
-                __v: {type: 'number'}
-            }
-        }
-    }
-}

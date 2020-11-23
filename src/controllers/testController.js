@@ -103,22 +103,16 @@ exports.getTestByIdAndThemeAdmin = async (req, reply) => {
 
         let tests = await Test.findById(_id)
         tests.easy_questions = await Promise.all(tests.easy_questions.map(async (q) => {
-            const que = await Question.findById(q._id)
-            return que
+            return await Question.findById(q._id)
         }))
         tests.medium_questions = await Promise.all(tests.medium_questions.map(async (q) => {
-            const que = await Question.findById(q._id)
-
-            return que
+            return await Question.findById(q._id)
         }))
         tests.difficult_questions = await Promise.all(tests.difficult_questions.map(async (q) => {
-            const que = await Question.findById(q._id)
-
-            return que
+            return await Question.findById(q._id)
         }))
 
         return tests
-
     } catch (err) {
         throw boom.boomify(err)
     }

@@ -44,7 +44,6 @@ const routes = [
         method: 'GET',
         url: '/api/test/:theme_id/all',
         handler: testController.getTestsByTheme,
-        schema: testDocumentation.testSchema
     }
 ]
 
