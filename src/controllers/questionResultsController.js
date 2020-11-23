@@ -105,9 +105,7 @@ exports.addQuestionResults = async (req, reply) => {
         const fuzzyResult = FuzzyController.getNextQuestionLevel(pointPerResult / maxPointPerQuestion, currentTestPoints / maxPointPerTest)
         switch (fuzzyResult) {
             case -1:
-                allQuestionsPerTest = await Promise.all(allQuestionsPerTest.easy_questions.filter(async (s) => {
-                    return allUserQuestionResults.includes(s) === false
-                }))
+                allQuestionsPerTest = await Promise.all(allQuestionsPerTest.easy_questions.filter(async (s) => allUserQuestionResults.includes(s)))
                 if (allQuestionsPerTest.length > 0) {
                     nextQuestion = await Question.findById(allQuestionsPerTest[0])
 
@@ -118,9 +116,7 @@ exports.addQuestionResults = async (req, reply) => {
                     }
                 }
             case 0:
-                allQuestionsPerTest = await Promise.all(allQuestionsPerTest.medium_questions.filter(async (s) => {
-                    return allUserQuestionResults.includes(s) === false
-                }))
+                allQuestionsPerTest = await Promise.all(allQuestionsPerTest.medium_questions.filter(async (s) => allUserQuestionResults.includes(s)))
                 if (allQuestionsPerTest.length > 0) {
                     nextQuestion = await Question.findById(allQuestionsPerTest[0])
 
@@ -130,9 +126,7 @@ exports.addQuestionResults = async (req, reply) => {
                     }
                 }
             case 1:
-                allQuestionsPerTest = await Promise.all(allQuestionsPerTest.difficult_questions.filter(async (s) => {
-                    return allUserQuestionResults.includes(s) === false
-                }))
+                allQuestionsPerTest = await Promise.all(allQuestionsPerTest.difficult_questions.filter(async (s) => allUserQuestionResults.includes(s)))
                 if (allQuestionsPerTest.length > 0) {
                     nextQuestion = await Question.findById(allQuestionsPerTest[0])
 
