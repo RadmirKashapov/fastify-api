@@ -11,7 +11,7 @@ exports.options = {
       url: 'https://swagger.io',
       description: 'Find more info here'
     },
-    host: 'localhost:3000',
+    host: 'scatproject.herokuapp.com',
     schemes: ['http'],
     consumes: ['application/json'],
     produces: ['application/json']
