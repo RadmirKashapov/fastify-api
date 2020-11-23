@@ -35,9 +35,9 @@ exports.updateTestSchema = {
         type: 'object',
         properties: {
             theme_id: {type: 'number'},
-            easy_questions: { type: 'object' },
-            medium_questions: { type: 'object' },
-            difficult_questions: { type: 'object' },
+            easy_questions: { type: 'array' },
+            medium_questions: { type: 'array' },
+            difficult_questions: { type: 'array' },
         }
     },
     response: {
@@ -47,9 +47,9 @@ exports.updateTestSchema = {
             properties: {
                 _id: {type: 'string'},
                 theme_id: {type: 'number'},
-                easy_questions: { type: 'object' },
-                medium_questions: { type: 'object' },
-                difficult_questions: { type: 'object' },
+                easy_questions: { type: 'array' },
+                medium_questions: { type: 'array' },
+                difficult_questions: { type: 'array' },
                 __v: {type: 'number'}
             }
         }
