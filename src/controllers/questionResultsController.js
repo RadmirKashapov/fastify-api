@@ -60,7 +60,11 @@ exports.addQuestionResults = async (req, reply) => {
         let pointPerResult
         if (currentQuestionResult == null)
             pointPerResult = 0
-        else pointPerResult = currentQuestionResult.points
+        else {
+            if (question.right_answers.every(v => currentQuestionResult.user_answers.indexOf(v) >= 0)) {
+                pointPerResult = question.points
+            } else pointPerResult = 0
+        }
 
         let maxPointPerQuestion
         if (currentQuestion == null)
